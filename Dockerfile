@@ -46,7 +46,9 @@ RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
 # Configurar permisos correctos para que Laravel pueda escribir en caché y logs
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Exponer el puerto por defecto de Render
-EXPOSE 80
+# Forzar dinámicamente a Apache a escuchar en el puerto que Render le asigne ($PORT o 80 por defecto)
+RUN sed -i 's/Listen 80/Listen ${PORT}/g' /etc/apache2/ports.conf
+RUN sed -i 's/<VirtualHost \*:80>/<VirtualHost \*:${PORT}>/g' /etc/apache2/sites-available/*.conf
 
+# Comando por defecto para arrancar Apache
 CMD ["apache2-foreground"]
