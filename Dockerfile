@@ -1,7 +1,7 @@
-# Servidor de Producción Ultra Ligero con PHP y Apache
+# Servidor de Producción con PHP y Apache (Sin compilación en la nube)
 FROM php:8.3-apache
 
-# Instalar dependencias del sistema y extensiones de PHP necesarias
+# Instalar dependencias del sistema y extensiones necesarias
 RUN apt-get update && apt-get install -y \
     libpng-dev \
     libjpeg-dev \
@@ -22,21 +22,12 @@ ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
-# Instalar Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# Copiar todo el código del proyecto
+# Copiar todo el código (incluyendo vendor y public/build generados en local)
 WORKDIR /var/www/html
 COPY . .
 
-# 1. Configurar permisos primero (Es vital para que Composer y Laravel no colapsen al escribir)
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
-
-# 2. Instalar dependencias de PHP de forma ultra plana
-RUN composer install --no-dev --no-scripts --no-autoloader --ignore-platform-reqs
-
-# 3. Generar un autoloader básico y súper ligero (Consume casi 0 MB de RAM)
-RUN composer dump-autoload --no-dev
+# Configurar permisos para las carpetas de Laravel
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/vendor
 
 # Forzar dinámicamente a Apache a escuchar en el puerto de Render
 RUN sed -i 's/Listen 80/Listen ${PORT}/g' /etc/apache2/ports.conf
