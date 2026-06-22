@@ -31,6 +31,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'name' => 'default',
+                'type' => 'default',
                 'stripe_id' => 'sub_demo_123456789',
                 'stripe_status' => 'active',
                 'stripe_price' => 'price_1TlCeUCj1bk7BciWjC2LZk5h',
