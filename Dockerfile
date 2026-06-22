@@ -41,7 +41,7 @@ COPY . .
 COPY --from=frontend-builder /app/public/build ./public/build
 
 # Instalar dependencias de PHP para producción
-RUN composer install --no-dev --optimize-autoloader
+RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
 
 # Configurar permisos correctos para que Laravel pueda escribir en caché y logs
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
