@@ -22,9 +22,12 @@ ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
-# Copiar todo el código (incluyendo vendor y public/build generados en local)
 WORKDIR /var/www/html
 COPY . .
+
+# VOLVER A MAPEAR EL AUTOLOADER DE FORMA ULTRA LIGERA PARA LINUX (Cero consumo de RAM)
+RUN --mount=type=bind,from=composer:latest,source=/usr/bin/composer,target=/usr/bin/composer \
+    composer dump-autoload --no-dev --classmap-authoritative --ignore-platform-reqs
 
 # Configurar permisos para las carpetas de Laravel
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/vendor
