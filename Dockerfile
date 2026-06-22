@@ -25,15 +25,18 @@ RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.
 # Instalar Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copiar todo el código del proyecto (incluyendo la carpeta public/build que ya compilaste en local)
+# Copiar todo el código del proyecto
 WORKDIR /var/www/html
 COPY . .
 
-# Instalar dependencias de PHP para producción
-RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
-
-# Configurar permisos
+# 1. Configurar permisos primero (Es vital para que Composer y Laravel no colapsen al escribir)
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+
+# 2. Instalar dependencias de PHP de forma ultra plana
+RUN composer install --no-dev --no-scripts --no-autoloader --ignore-platform-reqs
+
+# 3. Generar un autoloader básico y súper ligero (Consume casi 0 MB de RAM)
+RUN composer dump-autoload --no-dev
 
 # Forzar dinámicamente a Apache a escuchar en el puerto de Render
 RUN sed -i 's/Listen 80/Listen ${PORT}/g' /etc/apache2/ports.conf
