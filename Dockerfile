@@ -49,4 +49,4 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 # Exponer el puerto por defecto de Render
 EXPOSE 80
 
-CMD php artisan migrate:fresh --force && php artisan db:seed --force && apache2-foreground
+CMD ["apache2-foreground"]
