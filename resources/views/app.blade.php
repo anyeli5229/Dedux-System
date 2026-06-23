@@ -8,7 +8,7 @@
     @fonts
     @inertiaHead
     @viteReactRefresh
-    @vite(['resources/css/app.css', 'resources/js/app.tsx', "resources/js/Pages/{$page['component']}.tsx"])
+    @vite(['resources/css/app.css', 'resources/js/app.tsx'])
     <script src="https://cdn.jsdelivr.net/npm/@tailwindplus/elements@1" type="module"></script>
 </head>
 
