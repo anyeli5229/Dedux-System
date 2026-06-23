@@ -1,7 +1,26 @@
-# Servidor de Producción con PHP y Apache
+# ==========================================
+# ETAPA 1: Construcción nativa en Linux (Temporal)
+# ==========================================
+FROM composer:latest AS builder
+
+WORKDIR /app
+
+# Copiar solo los archivos de dependencias
+COPY composer.json composer.lock ./
+
+# Instalar de forma nativa en Linux sin scripts pesados
+RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist --no-interaction
+
+# Copiar el resto del código para generar el autoloader real
+COPY . .
+RUN composer dump-autoload --no-dev --classmap-authoritative --no-scripts
+
+# ==========================================
+# ETAPA 2: Servidor de Producción Final (Apache)
+# ==========================================
 FROM php:8.3-apache
 
-# Instalar dependencias del sistema y extensiones de PHP necesarias
+# Instalar extensiones de PHP requeridas por Laravel
 RUN apt-get update && apt-get install -y \
     libpng-dev \
     libjpeg-dev \
@@ -10,7 +29,6 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     zip \
     unzip \
-    git \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install gd zip pdo pdo_pgsql
 
@@ -22,14 +40,17 @@ ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
-# Configurar directorio de trabajo
+# Configurar directorio de trabajo final
 WORKDIR /var/www/html
 
-# Copiar TODO el proyecto (incluyendo public/build de React y el vendor local optimizado)
+# 1. Copiar el código limpio de tu repositorio local (incluyendo public/build de React)
 COPY . .
 
+# 2. TRAER LA CARPETA VENDOR PERFECTA DESDE LA ETAPA DE COMPILACIÓN LINUX
+COPY --from=builder /app/vendor /var/www/html/vendor
+
 # Configurar permisos para que Laravel pueda escribir sin trabas
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/vendor
 
 # Forzar dinámicamente a Apache a escuchar en el puerto de Render
 RUN sed -i 's/Listen 80/Listen ${PORT}/g' /etc/apache2/ports.conf
