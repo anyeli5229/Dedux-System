@@ -1,18 +1,35 @@
 # ==========================================
-# ETAPA 1: Construcción nativa en Linux (Temporal)
+# ETAPA 1: Construcción nativa en Linux (Composer y NodeJS)
 # ==========================================
-FROM composer:latest AS builder
+FROM php:8.3-cli AS builder
 
 WORKDIR /app
 
-# Copiar solo los archivos de dependencias
-COPY composer.json composer.lock ./
+# Instalar dependencias del sistema necesarias para Composer y Node
+RUN apt-get update && apt-get install -y \
+    curl \
+    zip \
+    unzip \
+    git \
+    libpq-dev \
+    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs
 
-# INSTALACIÓN ELIMINANDO RESTRICCIONES DE EXTENSIONES O PHP (--ignore-platform-reqs)
+# Copiar Composer oficial
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Copiar dependencias del backend y frontend
+COPY composer.json composer.lock package.json package-lock.json ./
+
+# Instalar dependencias borrando restricciones
 RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist --no-interaction --ignore-platform-reqs
+RUN npm ci
 
-# Copiar el resto del código para generar el autoloader real
+# Copiar todo el código del proyecto
 COPY . .
+
+# Correr el build de Vite directamente en Linux y generar el autoloader
+RUN npm run build
 RUN composer dump-autoload --no-dev --classmap-authoritative --no-scripts
 
 # ==========================================
@@ -43,18 +60,19 @@ RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.
 # Configurar directorio de trabajo final
 WORKDIR /var/www/html
 
-# 1. Copiar el código limpio de tu repositorio local (incluyendo public/build de React)
+# 1. Copiar el código base limpio en el repositorio
 COPY . .
 
-# 2. TRAER LA CARPETA VENDOR PERFECTA DESDE LA ETAPA DE COMPILACIÓN LINUX
+# 2. TRAER VENDOR Y EL BUILD DESDE EL BUILDER DE LINUX
 COPY --from=builder /app/vendor /var/www/html/vendor
+COPY --from=builder /app/public/build /var/www/html/public/build
 
 # Configurar permisos para que Laravel pueda escribir sin trabas
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/vendor
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/vendor /var/www/html/public/build
 
 # Forzar dinámicamente a Apache a escuchar en el puerto de Render
 RUN sed -i 's/Listen 80/Listen ${PORT}/g' /etc/apache2/ports.conf
 RUN sed -i 's/<VirtualHost \*:80>/<VirtualHost \*:${PORT}>/g' /etc/apache2/sites-available/*.conf
 
-# NUEVO: Corre las migraciones antes de encender Apache
+# Corre las migraciones antes de encender Apache
 CMD php artisan migrate --force && apache2-foreground
