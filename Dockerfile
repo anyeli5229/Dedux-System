@@ -8,8 +8,8 @@ WORKDIR /app
 # Copiar solo los archivos de dependencias
 COPY composer.json composer.lock ./
 
-# Instalar de forma nativa en Linux sin scripts pesados
-RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist --no-interaction
+# INSTALACIÓN ELIMINANDO RESTRICCIONES DE EXTENSIONES O PHP (--ignore-platform-reqs)
+RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist --no-interaction --ignore-platform-reqs
 
 # Copiar el resto del código para generar el autoloader real
 COPY . .
