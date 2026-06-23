@@ -56,4 +56,5 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 RUN sed -i 's/Listen 80/Listen ${PORT}/g' /etc/apache2/ports.conf
 RUN sed -i 's/<VirtualHost \*:80>/<VirtualHost \*:${PORT}>/g' /etc/apache2/sites-available/*.conf
 
-CMD ["apache2-foreground"]
+# NUEVO: Corre las migraciones antes de encender Apache
+CMD php artisan migrate --force && apache2-foreground
