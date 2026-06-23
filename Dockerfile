@@ -31,15 +31,14 @@ WORKDIR /var/www/html
 # Copiar PRIMERO solo los archivos de Composer (Optimiza la caché de Docker)
 COPY composer.json composer.lock ./
 
-# INSTALACIÓN NATIVA EN LINUX EN MODO ULTRA-AHORRO DE RAM
-RUN PHP_ARGUMENTS="-d memory_limit=256M -d gc_collected=0" \
-    composer install --no-dev --no-scripts --no-autoloader --prefer-dist --no-interaction
+# INSTALACIÓN NATIVA CONFIGURANDO PHP DIRECTAMENTE DESDE EL EJECUTABLE
+RUN php -d memory_limit=512M /usr/bin/composer install --no-dev --no-scripts --no-autoloader --prefer-dist --no-interaction
 
-# Copia el resto del código del proyecto (incluyendo public/build de React)
+# Ahora copiamos el resto del código del proyecto (incluyendo public/build de React)
 COPY . .
 
-# Genera el autoloader limpio y nativo en Linux de forma ligera
-RUN composer dump-autoload --no-dev --no-scripts
+# Generar el autoloader limpio y nativo en Linux de forma ligera
+RUN php -d memory_limit=512M /usr/bin/composer dump-autoload --no-dev --no-scripts
 
 # Configurar permisos para que Laravel pueda escribir
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
