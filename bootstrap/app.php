@@ -26,6 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'subscribed' => Subscribed::class,
             'check.feature.limit' => CheckFeatureUsage::class
         ]);
+        $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->respond(function (Response $response) {
