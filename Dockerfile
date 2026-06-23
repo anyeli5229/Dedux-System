@@ -22,28 +22,13 @@ ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
-# Instalar Composer de forma oficial
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# CONFIGURAR LÍMITE DE MEMORIA INTERNA PARA COMPOSER Y PHP
-ENV COMPOSER_MEMORY_LIMIT=512M
-
 # Configurar directorio de trabajo
 WORKDIR /var/www/html
 
-# Copiar PRIMERO solo los archivos de Composer (Optimiza la caché de Docker)
-COPY composer.json composer.lock ./
-
-# INSTALACIÓN NATIVA DIRECTA (Con la variable de entorno ya inyectada)
-RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist --no-interaction
-
-# Copiamosr el resto del código del proyecto (incluyendo public/build de React)
+# Copiar TODO el proyecto (incluyendo public/build de React y el vendor local optimizado)
 COPY . .
 
-# Generamos el autoloader limpio y nativo en Linux de forma ligera
-RUN composer dump-autoload --no-dev --no-scripts
-
-# Configurar permisos para que Laravel pueda escribir
+# Configurar permisos para que Laravel pueda escribir sin trabas
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Forzar dinámicamente a Apache a escuchar en el puerto de Render
