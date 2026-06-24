@@ -17,6 +17,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+use Illuminate\Support\Facades\Artisan;
+
+Route::get('/seed-database-xyz', function () {
+    Artisan::call('db:seed', ['--force' => true]);
+    return '¡Base de datos sembrada con éxito!';
+});
+
 Route::get('/', function () {
     return Inertia::render('Auth/Home');
 });
