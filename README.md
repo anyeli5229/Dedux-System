@@ -117,7 +117,6 @@ Para levantar el servidor backend de Laravel e iniciar el compilador de assets p
    ```
 Abre tu navegador en http://localhost:8000
 
-
 ---
 
 ## 📄 Licencia
@@ -125,3 +124,24 @@ Abre tu navegador en http://localhost:8000
 Este proyecto es de código abierto bajo la licencia MIT.
 
 ---
+
+### 🎬 Demostración del Sistema
+
+<table width="100%">
+  <tr>
+    <td width="50%" valign="top">
+      <h4>1. Registro y Validaciones</h4>
+      <img src="./public/img/Registro.gif" width="100%" alt="Registro">
+    </td>
+    <td width="50%" valign="top">
+      <h4>2. Protección de Rutas</h4>
+      <img src="./public/img/Proteccion_Rutas.gif" width="100%" alt="Dashboard">
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" align="center" valign="top">
+      <h4>3. Pasarela de Pagos (Stripe Cashier)</h4>
+      <img src="./public/img/Suscripciones.gif" width="70%" alt="Checkout Stripe">
+    </td>
+  </tr>
+</table>
