@@ -122,7 +122,7 @@ export default function Dashboard({ transactions, totalIncome, totalExpense, pen
             <DeduxAgent transactions={transactions} />
 
             {!auth.user?.subscribed && (
-                <div className="border-t border-gray-50 dark:border-gray-500 pt-10">
+                <div className="mt-10 border-t border-gray-50 dark:border-gray-500 pt-10">
                     <PricingTable />
                 </div>
             )}
