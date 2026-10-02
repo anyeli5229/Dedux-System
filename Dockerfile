@@ -1,4 +1,4 @@
-FROM php:8.2-apache
+FROM php:8.3-apache
 
 # Instalar dependencias del sistema y extensiones de PHP necesarias para Laravel y PostgreSQL
 RUN apt-get update && apt-get install -y \
@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y \
     unzip \
     git \
     && docker-php-ext-configure intl \
-    && docker-php-ext-install pdo pdo_pgsql zip intl gd
+    && docker-php-ext-install pdo pdo_pgsql zip intl gd bcmath
 
 # Instalar Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -21,7 +21,7 @@ WORKDIR /var/www/html
 # Copiar el código del proyecto
 COPY . .
 
-# Instalar dependencias de PHP
+# Instalar dependencias de PHP sin entorno de desarrollo
 RUN composer install --no-dev --optimize-autoloader
 
 # Dar permisos a las carpetas de storage y bootstrap
