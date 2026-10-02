@@ -18,11 +18,14 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Configurar directorio de trabajo
 WORKDIR /var/www/html
 
-# Copiar el código del proyecto
-COPY . .
+# Copiar primero los archivos de dependencias
+COPY composer.json composer.lock .
 
 # Instalar dependencias de PHP sin entorno de desarrollo
 RUN composer install --no-dev --optimize-autoloader
+
+# Copiar el código del proyecto
+COPY . .
 
 # Dar permisos a las carpetas de storage y bootstrap
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
