@@ -6,7 +6,7 @@ export default function Footer() {
     const user = auth.user
 
     return (
-        <footer className="w-full bg-white/80 dark:bg-gray-950/80 backdrop-blur-md border-t border-gray-100 dark:border-gray-900 transition-colors mt-5">
+        <footer className="w-full bg-white dark:bg-gray-950 backdrop-blur-md border-t border-gray-100 dark:border-gray-900 transition-colors mt-5">
             <div className="max-w-6xl mx-auto px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
 
                 <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 font-medium tracking-wide uppercase">

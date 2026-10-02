@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\User;
+
 return [
 
     /*
@@ -36,8 +38,11 @@ return [
     ],
 
     'stripe' => [
+        'model' => User::class,
+        'key' => env('STRIPE_KEY'),
+        'secret' => env('STRIPE_SECRET'),
         'price_ai_monthly' => env('STRIPE_PRICE_AI_MONTHLY'),
         'price_ai_yearly' => env('STRIPE_PRICE_AI_YEARLY'),
-    ]
+    ],
 
 ];

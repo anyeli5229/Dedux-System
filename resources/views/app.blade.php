@@ -4,7 +4,9 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    @env('production')
+        <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    @endenv
     <title inertia>{{ config('app.name', 'Dedux') }}</title>
     @fonts
     @inertiaHead
