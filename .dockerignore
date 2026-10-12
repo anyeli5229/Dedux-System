@@ -1,5 +1,6 @@
-vendor
-node_modules
-.git
 .env
-storage/*.key
+.env.*
+!.env.example
+node_modules
+vendor
+.git

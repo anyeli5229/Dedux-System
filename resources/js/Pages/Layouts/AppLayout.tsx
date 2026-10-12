@@ -49,8 +49,8 @@ export default function AppLayout({ children, title, actions }: AppLayoutProps) 
                     {children}
                 </main>
 
-            </div>
                 <Footer/>
+            </div>
             
             <ToastContainer
                 position="top-right"
